@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Join the dots</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1, maximum-scale=1,user-scalable=0">
+    <link rel="stylesheet" href="dotgame.css">
+   <script  src="https://code.jquery.com/jquery-3.4.1.js"  integrity="sha256-WpOohJOqMqqyKL9FccASB9O0KwACQJpFTUBLTYOVvVU="crossorigin="anonymous"></script>
+    <script src="dotgame1.js"></script>
+    <script>
+function get(y){
+let yu=document.querySelector(y)
+    return yu
+}
+
+
+    </script>
+    <style>
+        
+    </style>
+</head>
+<body>
+ <div id="body">
+     <div id="game_display">  
+
+     </div>
+     
+     
+     <div id="board">
+         <div id="plr2"></div>
+          <button id="flsc" style="position: absolute;bottom:10px;left:35%">full screen</button>
+         <div id="plr1"></div>
+     </div>
+     
+ </div>
+ <script>
+ let btn = get("#flsc");
+btn.addEventListener("click", function(){
+  let videoEle = get('#body');
+  enterFullScreen(videoEle);
+});
+
+document.addEventListener('fullscreenchange', (event) => {
+  if (document.fullscreenElement) {
+    console.log('Entered fullscreen:', document.fullscreenElement);
+  } else {
+    console.log('Exited fullscreen.');
+  }
+});
+
+</script>  
+<script>
+    
+</script>
+<script>
+
+  
+  
+  
+  
+App=function(pl1,pl2){
+let game_data={
+    ids:{
+       gd:"#game_display",
+       plr1:"#plr1",
+       plr2:"#plr2",
+       body:"#body"
+    }
+}
+
+    var game={c:0,pass:true,for:0}  //pass ::1//2
+    var player1=pl1
+   var player2=pl2
+   
+   /*
+    var player1={
+        Name:"player1",
+        Colour:"#8f00ff",
+        sts : true,
+        score:0
+    }
+    var player2={
+      Name:"player2",
+      Colour:"#ff7e15",
+      sts:true,
+      score:0
+    }
+  
+  */  
+    
+    var players=[player1,player2];  
+    var ln_hr={}
+    var ln_vr={}
+    var blck={}
+    var size=6;  //height of dot
+    var len=40;   //length of line    
+    var max_m;
+    var max_n;  
+    var ft=8 //position:: height 
+    var l=10 //position ::left    
+    var gd =get(game_data.ids.gd);    
+    var m=0;
+    var n=0
+    var max_m, max_n;
+    let H = gd.offsetHeight
+    let W = gd.offsetWidth
+    setup()
+    
+function setup(){
+    let n=0
+    while(ft<= H){
+        let h=l; //position::left
+        n+=1;
+        let m=0;
+        while(h <= W){
+            m+=1;
+            let id = n+"-"+m;
+            let zi= h+len-(2*size);
+            let iz = ft+len-(2*size);
+            if(zi <= W ){
+                add_ln_hr(ft,h,id);
+            }
+            if( iz <= H){
+                add_ln_vr(ft,h,id);
+            }
+            add_dt(ft,h);
+            if (zi <= W && iz <= H) {
+                    add_blck(ft,h,id);
+                }
+            max_m = m;
+            h+=len-(size);
+        }//while        
+        max_n = n;
+        ft+=len-size;
+    }//while
+    let bk1="background:"+players[0].Colour;
+    let n1=players[0].Name
+    get(game_data.ids.plr1).innerText=n1
+    get(game_data.ids.plr1).style=bk1;
+    let bk2="text-align:center;background:"+players[1].Colour;
+    get(game_data.ids.plr2).style=bk2
+    let n2=players[1].Name
+    get(game_data.ids.plr2).innerText=n2        
+    pass(game.for)
+}//setup()
+
+
+////////////////////////////////////////////
+
+
+
+
+
+
+function pass(f){
+    let plr1=get(game_data.ids.plr1);
+    let plr2=get(game_data.ids.plr2);
+    let p = players.length
+    if (game.pass==false){
+        game.for = (game.for+p)%p;
+        game.pass=true
+    }else{
+        game.for = (game.for+1)%p;
+        //console.log(game.for)
+    }
+    let c=game.for;
+    let i=0;  
+    
+    while(i < p){
+        let vg = [plr1,plr2][i];
+        if (i === c){
+            vg.style.border="solid black 4px"
+        }else{
+            vg.style.border="solid black 0px"    
+        }
+    i+=1;
+    }//while    
+}//pass()
+
+function add_blck(ft,h,id){  
+    var gd =get(game_data.ids.gd); 
+    var ln=document.createElement("div");
+    ln.setAttribute("class","blocks");
+    ln.setAttribute("id","bl"+id);
+    var dt = {status:0,by:""};
+    blck[id] = dt;
+    let l=(h+(5/4)*size)+"px;";
+    let t=(ft+(5/4)*size)+"px;";
+ let st="position:absolute;left:"+l+"top:"+t
+    ln.style=st;
+    gd.appendChild(ln);  
+} //add block
+
+function add_ln_vr(ft,h,id){
+    var gd = get(game_data.ids.gd); 
+    var ln=document.createElement("div");
+    ln.setAttribute("class","line");
+    ln.setAttribute("id","vr"+id);
+    var dt={status:false,by:""};
+    ln_vr[id]=dt
+    let l=(h+(3/8)*size);
+    ln.style="height:"+len+"px;width:"+size/4+"px;position:absolute;top:"+ft+"px;left:"+l+"px";   
+    ln.addEventListener("click", function (){
+let st=ln_vr[id].status;
+
+if(st!=true){
+    ln_vr[id].status=true;
+    let g = game.for;
+    game.c+=1;
+    this.style.background=players[g].Colour;
+    if(id.split("-")[1] < max_m){
+                blck[id].status+=1;
+                blck[id].by=players[g];
+                ch_blc(id );
+        let b= JSON.stringify(blck[id])
+        //console.log(b)
+    }
+     if(id.split("-")[1] >1){
+                let ht=id.split("-");
+                let n=ht[0]
+                let m=ht[1]
+                let yo=n+"-"+(m-1)
+                blck[yo].status+=1;
+                blck[yo].by=players[g]
+                ch_blc(yo )
+     b= JSON.stringify(blck[yo])
+     //console.log(b)
+    }
+    pass()
+}//if true
+
+    });//eventListener    
+   gd.appendChild(ln);  
+} //add_ln_vr()
+
+
+function add_ln_hr(ft,h,id){
+    var gd =get(game_data.ids.gd); 
+    var ln=document.createElement("div");
+    ln.setAttribute("class","line");
+    ln.setAttribute("id","hr"+id);
+    var dt={status:false,by:""}
+    ln_hr[id]=dt;
+    let t=(ft+(3/8)*size)+"px;";
+    ln.style="height:"+size/4+"px;width:"+len+"px"+"; position: absolute;top:"+t+"left:"+h+"px";
+    ln.addEventListener("click", function (){
+let st=ln_hr[id].status;
+if(st!=true){
+    ln_hr[id].status=true;
+    let g = game.for;
+    game.c+=1;
+    this.style.background=players[g].Colour;
+    if(id.split("-")[0] < max_n){
+                blck[id].status+=1;
+                blck[id].by=players[g];
+                ch_blc(id );
+        let b= JSON.stringify(blck[id])
+        //console.log(b)
+    }//if
+    let ht=id.split("-");
+                let n=ht[0]
+                let m=ht[1]
+    if(n>1){
+                let yo=(n-1)+"-"+m
+                blck[yo].status+=1;
+                blck[yo].by=players[g];
+                ch_blc(yo );
+      let b= JSON.stringify(blck[id])
+      //console.log(b)
+            }
+    pass();
+}//if true
+    
+    });  //eventListener
+    gd.appendChild(ln);
+}//add_ln_hr
+
+
+function ch_blc(d){
+    let g= game.for;
+        let id = d
+        
+            if(blck[id].status==4){
+                let yo="bl"+id
+                let gi =get("#"+yo) ;
+                gi.style.background = players[g].Colour;
+                players[g].score+= 1
+                gi.innerText = players[g].score;
+                
+                game.pass=false;
+                
+            }else if (blck[id].status < 4 ){
+                //game.pass=true;
+            }
+            //if else   4 
+            
+ let k = Object.keys(ln_hr).length +Object.keys(ln_vr).length;
+  
+ let yxz=players[0].score+ players[1].score
+ let zxy=Object.keys(blck).length
+            if (k==game.c && yxz==zxy){
+              
+         
+         console.log( k, game.c)  
+         
+         
+             get(game_data.ids.body).append(ending(player1,player2))
+            }
+}//chblc
+  
+function add_dt(ft,h){
+   var gd = get(game_data.ids.gd);
+   var dt=document.createElement("div");
+   dt.setAttribute("class","dot");
+   dt.style="height:"+size+"px; position: absolute;left:"+h+"px;top:"+(ft-0)+"px";
+
+   gd.appendChild(dt);
+}
+
+ }   //App
+ 
+ 
+    function start(b){
+  let y= crt("div")
+  
+  let bck=" 0.25 );box-shadow:0 8px 32px 0 rgba( 31, 38, 135, 0.37 );backdrop-filter:blur( 4px );-webkit-backdrop-filter:blur( 4px );border-radius:10px;border:1px solid rgba( 255, 255, 255, 0.18 );"
+  
+  
+  
+  
+  
+  y.setAttribute("id","strt")
+  y.style="height:400px;width:350px;position:absolute;left:30px;background #eaeaff00"
+  
+ let u=crt("div");
+ u.style="height:390px;width:290px;position:absolute;background:rgba( 255, 5, 5,"+bck
+
+let f=crt("div")
+f.style="width:100%;height:40%;text-align:center; position:absolute;top:2px;background:rgba(5, 255, 5,"+bck
+let o=crt("h1")
+
+o.innerText="PLAYER 1"
+o.style="line-height:0px"
+f.appendChild(o)
+
+//u.appendChild(f)
+
+let t=crt("table")
+
+  
+  
+let n="<tr><td><b>Name</b></td><td><input id='nm1' type='text' size='10' style='font-size:20px'></td></tr><tr><td><b>Color</b></td><td><select id='clr1' name='color1' > <option value=''>select</option><option value='blue'>blue</option><option value='red'>red</option><option value='green'>green</option><option value='purple'>purple</option><option value='yellow'>yellow</option></select></td></tr>"
+
+t.innerHTML=n
+t.style="height:80%;width:100%;font-size:30px"
+
+f.appendChild(t)
+
+u.appendChild(f)
+
+ f=crt("div")
+f.style="width:100%;height:40%;text-align:center; position:absolute;bottom:60px;background:rgba( 5, 255, 2,"+bck
+ o=crt("h1")
+
+o.innerText="PLAYER 2"
+o.style="line-height:0px"
+f.appendChild(o)
+
+//u.appendChild(f)
+
+ t=crt("table")
+
+  
+  
+ n="<tr><td><b>Name</b></td><td><input id='nm2' type='text' size='10' style='font-size:20px'></td></tr><tr><td><b>Color</b></td><td><select id='clr2' name='color2' > <option value=''>select</option><option value='blue'>blue</option><option value='red'>red</option><option value='green'>green</option><option value='purple'>purple</option><option value='yellow'>yellow</option></select></td></tr>"
+
+t.innerHTML=n
+t.style="height:80%;width:100%;font-size:30px"
+
+f.appendChild(t)
+
+u.appendChild(f)
+
+
+let bt=crt("button")
+bt.innerText="Next"
+bt.style="position:absolute;left:150px;bottom:2px;height:40px;width:60px;background:rgba( 25, 250, 58,"+bck
+bt.onclick="cg()"
+u.appendChild(bt)
+bt.setAttribute("id","set")
+y.appendChild(u)
+
+  b.appendChild(y)
+}  ///start
+start(get("#body"))
+
+
+get("#set").addEventListener("click", function (){
+let nm1=get("#nm1").value
+let clr1=get("#clr1").value
+
+
+
+let nm2=get("#nm2").value
+let clr2=get("#clr2").value
+
+
+
+if (nm1!=nm2 && clr1!=clr2 && clr1!="" && clr2!="" && nm1!="" && nm2!=""){
+ //  console.log(nm1,nm2,clr1,clr2) 
+   var player1={
+        Name:nm1,
+        Colour:clr1,
+        sts : true,
+        score:0
+    }
+    var player2={
+      Name:nm2,
+      Colour:clr2,
+      sts:true,
+      score:0
+    }
+    
+    get("#strt").style.display="none"
+    
+    
+    
+    App(player1,player2)
+    
+    
+}else{
+let t="Name and color of both player should not be empty and should not be same"
+    alert(t)
+}
+
+})
+
+// App(player1,player2);
+</script>  
+</body>
+</html>
